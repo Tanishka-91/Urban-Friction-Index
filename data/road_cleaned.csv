@@ -1,0 +1,9 @@
+Zone,Complaints,Severity,Severity_Weight,Road_Friction
+Zone A,12,Low,1,12
+Zone B,25,Medium,2,50
+Zone C,40,High,3,120
+Zone D,18,Medium,2,36
+Zone E,55,High,3,165
+Zone F,8,Low,1,8
+Zone G,30,Medium,2,60
+Zone H,65,High,3,195
