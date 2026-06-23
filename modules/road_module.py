@@ -1,5 +1,4 @@
 import pandas as pd
-<<<<<<< HEAD
 from sklearn.preprocessing import MinMaxScaler
 
 def process_road(file_path):
