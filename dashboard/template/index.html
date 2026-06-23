@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Urban Friction Index — City X</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{--bg:#0d0f14;--bg2:#13161e;--bg3:#1a1e2a;--border:rgba(255,255,255,0.07);--text:#e8eaf0;--muted:#6b7280;--accent:#4f8ef7;--low:#22c55e;--mid:#f59e0b;--high:#ef4444;--font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+.shell{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:20px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.logo{display:flex;align-items:center;gap:10px;padding:0 6px 18px;border-bottom:1px solid var(--border);margin-bottom:6px}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#4f8ef7,#7c3aed);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-text{font-size:13px;font-weight:600}.logo-sub{font-size:10px;color:var(--muted);font-family:var(--mono)}
+.nav-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:600;padding:8px 8px 4px}
+.nav-btn{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:12px;color:var(--muted);border:none;background:none;width:100%;text-align:left;transition:all .15s}
+.nav-btn:hover,.nav-btn.on{background:rgba(79,142,247,0.12);color:var(--accent)}
+.live-pill{display:flex;align-items:center;gap:6px;padding:6px 10px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:20px;margin-top:auto;font-size:11px;color:#22c55e}
+.dot{width:7px;height:7px;border-radius:50%;background:#22c55e;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.main{padding:24px;overflow-y:auto}
+.toprow{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.page-title{font-size:21px;font-weight:700;letter-spacing:-.3px}
+.page-sub{font-size:12px;color:var(--muted);margin-top:3px}
+.rbadge{font-size:11px;font-family:var(--mono);color:var(--muted);background:var(--bg3);border:1px solid var(--border);padding:5px 10px;border-radius:6px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px}
+.kpi-label{font-size:10px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+.kpi-val{font-size:24px;font-weight:700;font-family:var(--mono)}.kpi-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.sec{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:10px}
+.hmap-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:18px}
+.hmap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.hcell{border-radius:10px;padding:14px;cursor:pointer;transition:all .2s;border:2px solid transparent;position:relative}
+.hcell:hover{transform:translateY(-2px)}
+.hcell.sel{border-color:rgba(255,255,255,0.35)}
+.hz{font-size:10px;font-weight:600;color:rgba(255,255,255,.65);margin-bottom:3px;font-family:var(--mono)}
+.ha{font-size:11px;color:rgba(255,255,255,.45);margin-bottom:8px}
+.hs{font-size:26px;font-weight:700;color:#fff;font-family:var(--mono)}
+.hl{font-size:10px;margin-top:3px;font-weight:500;color:rgba(255,255,255,.75)}
+.hbg{height:3px;background:rgba(255,255,255,.15);border-radius:2px;margin-top:8px}
+.hbf{height:3px;border-radius:2px;background:rgba(255,255,255,.55);transition:width .5s}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+@media(max-width:680px){.twocol{grid-template-columns:1fr}.shell{grid-template-columns:1fr}.sidebar{display:none}}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px}
+.fbar{margin-bottom:11px}
+.fbar-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.fbar-lbl{font-size:12px;color:var(--muted)}.fbar-val{font-size:12px;font-weight:600;font-family:var(--mono)}
+.fbar-src{font-size:9px;color:var(--muted);margin-left:4px;font-family:var(--mono)}
+.fbg{background:rgba(255,255,255,.06);border-radius:4px;height:5px;overflow:hidden}
+.fbf{height:5px;border-radius:4px;transition:width .5s}
+.wtag{font-size:9px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px;color:var(--muted);font-family:var(--mono);margin-left:4px}
+.pred-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px;margin-bottom:18px}
+.pred-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:13px}
+.pzone{font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:3px}
+.prow{display:flex;align-items:baseline;gap:5px;margin-bottom:3px}
+.pval{font-size:20px;font-weight:700;font-family:var(--mono)}.parr{font-size:16px;font-weight:700}
+.ptrend{font-size:10px;color:var(--muted)}.pday{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+.form-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.form-row select,.form-row button{padding:8px 12px;border-radius:8px;font-size:12px;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--font);cursor:pointer}
+.form-row button{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+.form-row button:hover{opacity:.85}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:10px;font-size:11px;color:var(--muted)}
+.lsq{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:middle}
+.toast{position:fixed;bottom:24px;right:24px;background:#22c55e;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:500;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;z-index:999}
+.toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">🏙️</div>
+    <div><div class="logo-text">UFI Dashboard</div><div class="logo-sub">City X · v2.0</div></div>
+  </div>
+  <div class="nav-label">Navigation</div>
+  <button class="nav-btn on">⬛ &nbsp;Overview</button>
+  <div class="nav-label" style="margin-top:10px">Zones</div>
+  <div id="sbzones"></div>
+  <div class="live-pill" style="margin-top:16px">
+    <span class="dot"></span>
+    <span id="livetime">Connecting...</span>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="toprow">
+    <div>
+      <div class="page-title">Urban Friction Index</div>
+      <div class="page-sub">Real-time inconvenience · 6 zones · 6 factors · ML prediction</div>
+    </div>
+    <div class="rbadge" id="rbadge">⏳ Loading...</div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">City UFI</div><div class="kpi-val" id="k-ufi">—</div><div class="kpi-sub">avg score</div></div>
+    <div class="kpi"><div class="kpi-label">Worst Zone</div><div class="kpi-val" id="k-worst" style="font-size:16px">—</div><div class="kpi-sub">highest friction</div></div>
+    <div class="kpi"><div class="kpi-label">Best Zone</div><div class="kpi-val" id="k-best" style="font-size:16px;color:var(--low)">—</div><div class="kpi-sub">lowest friction</div></div>
+    <div class="kpi"><div class="kpi-label">High Risk</div><div class="kpi-val" id="k-risk" style="color:var(--mid)">—</div><div class="kpi-sub">zones UFI ≥70</div></div>
+    <div class="kpi"><div class="kpi-label">Complaints</div><div class="kpi-val" id="k-comp">—</div><div class="kpi-sub">last 24 hours</div></div>
+  </div>
+
+  <div class="hmap-wrap">
+    <div class="sec">🗺️ zone heatmap — click to inspect</div>
+    <div class="hmap-grid" id="hgrid"></div>
+    <div style="display:flex;gap:18px;margin-top:12px;font-size:11px;color:var(--muted);flex-wrap:wrap">
+      <span>Scale:</span>
+      <span><span class="lsq" style="background:#22c55e"></span>Low (0–54)</span>
+      <span><span class="lsq" style="background:#f59e0b"></span>Moderate (55–74)</span>
+      <span><span class="lsq" style="background:#ef4444"></span>High (75+)</span>
+    </div>
+  </div>
+
+  <div class="twocol">
+    <div class="card">
+      <div class="sec">Factor breakdown · <span id="dzone" style="color:var(--accent)">Zone A</span></div>
+      <div id="fbars"></div>
+    </div>
+    <div class="card">
+      <div class="sec">7-day trend</div>
+      <div style="position:relative;height:175px"><canvas id="tc" role="img" aria-label="7-day UFI trend for selected zone"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px">
+    <div class="sec">Zone comparison — all 6 factors</div>
+    <div class="legend">
+      <span><span class="lsq" style="background:#ef4444"></span>Traffic</span>
+      <span><span class="lsq" style="background:#f59e0b"></span>Air</span>
+      <span><span class="lsq" style="background:#4f8ef7"></span>Transit</span>
+      <span><span class="lsq" style="background:#7c3aed"></span>Complaints</span>
+      <span><span class="lsq" style="background:#06b6d4"></span>Noise</span>
+      <span><span class="lsq" style="background:#ec4899"></span>Crowd</span>
+    </div>
+    <div style="position:relative;height:210px"><canvas id="zc" role="img" aria-label="Zone comparison bar chart all 6 factors"></canvas></div>
+  </div>
+
+  <div class="sec">🤖 ML prediction — tomorrow's UFI (Linear Regression)</div>
+  <div class="pred-grid" id="pgrid"></div>
+
+  <div class="card">
+    <div class="sec">📢 report an issue — updates scores live</div>
+    <p style="font-size:12px;color:var(--muted)">Submit below. Score refreshes in the next 15-second cycle.</p>
+    <div class="form-row">
+      <select id="czone"></select>
+      <select id="ccat">
+        <option value="pothole">🕳️ Pothole</option>
+        <option value="traffic_jam">🚗 Traffic jam</option>
+        <option value="signal_fault">🚦 Signal fault</option>
+        <option value="pollution">💨 Pollution</option>
+        <option value="noise">🔊 Noise</option>
+        <option value="overcrowding">👥 Overcrowding</option>
+        <option value="streetlight">💡 Streetlight</option>
+        <option value="general">📌 General</option>
+      </select>
+      <button onclick="submitComplaint()">Submit report</button>
+    </div>
+  </div>
+</main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const AREAS={"Zone A":"Downtown","Zone B":"Industrial","Zone C":"Suburbs","Zone D":"Old City","Zone E":"Tech Park","Zone F":"Waterfront"};
+const FMETA={
+  traffic:    {l:"Traffic congestion",i:"🚗",w:"28%"},
+  air_quality:{l:"Air quality",       i:"💨",w:"22%"},
+  transit:    {l:"Transit delay",     i:"🚌",w:"18%"},
+  complaints: {l:"Citizen complaints",i:"📢",w:"12%"},
+  noise:      {l:"Noise pollution",   i:"🔊",w:"10%"},
+  crowd:      {l:"Crowd density",     i:"👥",w:"10%"},
+};
+const FCOL={traffic:"#ef4444",air_quality:"#f59e0b",transit:"#4f8ef7",complaints:"#7c3aed",noise:"#06b6d4",crowd:"#ec4899"};
+
+let data=[], sel="Zone A", TC=null, ZC=null;
+
+function uc(v){return v>=75?"#ef4444":v>=55?"#f59e0b":"#22c55e"}
+function ul(v){return v>=75?"High friction":v>=55?"Moderate":"Low friction"}
+function ubg(v){
+  if(v>=75)return"linear-gradient(135deg,#7f1d1d,#ef4444)";
+  if(v>=55)return"linear-gradient(135deg,#78350f,#f59e0b)";
+  return"linear-gradient(135deg,#14532d,#22c55e)";
+}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+
+async function fetchData(){
+  try{
+    const r=await fetch('/api/ufi');
+    data=await r.json();
+    renderAll();
+    document.getElementById('livetime').textContent=new Date().toLocaleTimeString();
+    document.getElementById('rbadge').textContent='✅ '+new Date().toLocaleTimeString();
+  }catch(e){document.getElementById('rbadge').textContent='⚠️ Error'}
+}
+
+function renderAll(){rKPI();rHmap();rSidebar();rDetail();rZoneChart();rPred();rCForm()}
+
+function rKPI(){
+  const sc=data.map(z=>z.ufi);
+  const avg=(sc.reduce((a,b)=>a+b,0)/sc.length).toFixed(1);
+  const worst=data.reduce((a,b)=>a.ufi>b.ufi?a:b);
+  const best=data.reduce((a,b)=>a.ufi<b.ufi?a:b);
+  const risk=data.filter(z=>z.ufi>=70).length;
+  const comp=data.reduce((a,z)=>a+(z.breakdown?.complaints?.complaint_count||0),0);
+  document.getElementById('k-ufi').textContent=avg;
+  document.getElementById('k-ufi').style.color=uc(avg);
+  document.getElementById('k-worst').textContent=worst.zone;
+  document.getElementById('k-worst').style.color=uc(worst.ufi);
+  document.getElementById('k-best').textContent=best.zone;
+  document.getElementById('k-risk').textContent=risk;
+  document.getElementById('k-comp').textContent=comp;
+}
+
+function rHmap(){
+  const g=document.getElementById('hgrid');g.innerHTML='';
+  data.forEach(z=>{
+    const d=document.createElement('div');
+    d.className='hcell'+(z.zone===sel?' sel':'');
+    d.style.background=ubg(z.ufi);
+    d.innerHTML=`<div class="hz">${z.zone}</div><div class="ha">${AREAS[z.zone]||''}</div><div class="hs">${z.ufi}</div><div class="hl">${ul(z.ufi)}</div><div class="hbg"><div class="hbf" style="width:${z.ufi}%"></div></div>`;
+    d.onclick=()=>{sel=z.zone;rHmap();rDetail();rSidebar()};
+    g.appendChild(d);
+  });
+}
+
+function rSidebar(){
+  const el=document.getElementById('sbzones');el.innerHTML='';
+  data.forEach(z=>{
+    const b=document.createElement('button');
+    b.className='nav-btn'+(z.zone===sel?' on':'');
+    b.innerHTML=`<span style="display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:50%;background:${uc(z.ufi)}"></span>${z.zone}</span><span style="font-family:var(--mono);font-size:11px;color:${uc(z.ufi)}">${z.ufi}</span>`;
+    b.onclick=()=>{sel=z.zone;rHmap();rDetail();rSidebar()};
+    el.appendChild(b);
+  });
+}
+
+function rDetail(){
+  const z=data.find(x=>x.zone===sel);if(!z)return;
+  document.getElementById('dzone').textContent=z.zone+' — '+(AREAS[z.zone]||'');
+  const el=document.getElementById('fbars');el.innerHTML='';
+  const bk=z.breakdown||{};
+  Object.entries(FMETA).forEach(([k,m])=>{
+    const f=bk[k]||{};const v=f.score||0;const col=FCOL[k];
+    const src=(f.source||'').replace(/_/g,' ');
+    el.innerHTML+=`<div class="fbar"><div class="fbar-top"><span class="fbar-lbl">${m.i} ${m.l}<span class="wtag">${m.w}</span></span><span class="fbar-val" style="color:${col}">${v}<span class="fbar-src">${src}</span></span></div><div class="fbg"><div class="fbf" style="width:${v}%;background:${col}"></div></div></div>`;
+  });
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const seed=z.zone.charCodeAt(5)*7;
+  const td=days.map((_,i)=>+(Math.max(10,Math.min(99,z.ufi+Math.sin(i*1.4+seed)*9))).toFixed(1));
+  const ctx=document.getElementById('tc').getContext('2d');
+  if(TC)TC.destroy();
+  TC=new Chart(ctx,{type:'line',data:{labels:days,datasets:[{label:'UFI',data:td,borderColor:uc(z.ufi),backgroundColor:uc(z.ufi)+'22',fill:true,borderWidth:2,pointRadius:3,pointBackgroundColor:uc(z.ufi),tension:0.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{color:'#6b7280',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#6b7280',font:{size:10}},grid:{display:false}}}}});
+}
+
+function rZoneChart(){
+  const ctx=document.getElementById('zc').getContext('2d');
+  if(ZC)ZC.destroy();
+  const bk=(z,k)=>(z.breakdown&&z.breakdown[k])?z.breakdown[k].score:0;
+  ZC=new Chart(ctx,{type:'bar',data:{labels:data.map(z=>z.zone),datasets:[
+    {label:'Traffic',    data:data.map(z=>bk(z,'traffic')),    backgroundColor:'#ef4444'},
+    {label:'Air',        data:data.map(z=>bk(z,'air_quality')),backgroundColor:'#f59e0b'},
+    {label:'Transit',    data:data.map(z=>bk(z,'transit')),    backgroundColor:'#4f8ef7'},
+    {label:'Complaints', data:data.map(z=>bk(z,'complaints')), backgroundColor:'#7c3aed'},
+    {label:'Noise',      data:data.map(z=>bk(z,'noise')),      backgroundColor:'#06b6d4'},
+    {label:'Crowd',      data:data.map(z=>bk(z,'crowd')),      backgroundColor:'#ec4899'},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6b7280',font:{size:10}},grid:{display:false}},y:{max:100,ticks:{color:'#6b7280',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}}}}});
+}
+
+function rPred(){
+  const el=document.getElementById('pgrid');el.innerHTML='';
+  data.forEach(z=>{
+    const p=z.prediction||{};const col=p.trend_color||'#6b7280';
+    el.innerHTML+=`<div class="pred-card"><div class="pzone">${z.zone}</div><div class="prow"><div class="pval" style="color:${col}">${p.predicted_ufi||'—'}</div><div class="parr" style="color:${col}">${p.trend_icon||'→'}</div></div><div class="ptrend" style="color:${col}">${p.trend||'stable'}</div><div class="pday">${p.day||'tomorrow'} · now ${z.ufi}</div></div>`;
+  });
+}
+
+function rCForm(){
+  const sel2=document.getElementById('czone');
+  if(sel2.options.length>0)return;
+  data.forEach(z=>{const o=document.createElement('option');o.value=z.zone;o.textContent=z.zone+' ('+AREAS[z.zone]+')';sel2.appendChild(o)});
+}
+
+async function submitComplaint(){
+  const zone=document.getElementById('czone').value;
+  const category=document.getElementById('ccat').value;
+  await fetch('/api/complaint',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({zone,category})});
+  toast('✅ Filed for '+zone+' — refreshes in 15s');
+  setTimeout(fetchData,800);
+}
+
+fetchData();
+setInterval(fetchData,15000);
+</script>
+</body>
+</html>
