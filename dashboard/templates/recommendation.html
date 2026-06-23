@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+<h1>Recommendations</h1>
+
+{% for row in data %}
+
+<div>
+
+<h2>
+{{ row.Zone }}
+</h2>
+
+<p>
+
+{{ row.Recommendation }}
+
+</p>
+
+</div>
+
+<hr>
+
+{% endfor %}
+
+</body>
+
+</html>

@@ -1,0 +1,6 @@
+Zone,BusDelay,CancelledTrips,MissedTrips
+Zone A,8,2,5
+Zone B,15,5,10
+Zone C,25,8,15
+Zone D,10,3,7
+Zone E,20,6,12
