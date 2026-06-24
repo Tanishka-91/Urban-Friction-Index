@@ -16,7 +16,7 @@ import pandas as pd
 
 app = Flask(__name__)
 
-df = pd.read_csv("../outputs/final_ufi.csv")
+df = pd.read_csv("URBAN-FRICTION-INDEX/outputs/final_ufi.csv")
 
 
 @app.route("/")
