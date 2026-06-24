@@ -16,43 +16,24 @@ final_df["UFI"] = (
     + 0.15 * final_df["TransportScore"]
 )
 
-print("\nUrban Friction Index:\n")
-print(final_df)
+# print("\nUrban Friction Index:\n")
+# print(final_df)
 
 final_df.to_csv(
     "outputs/final_ufi.csv",
     index=False
 )
 
-def get_recommendation(row):
-
-    recommendations = []
-
-    if row["TrafficScore"] > 35:
-        recommendations.append(
-            "Improve traffic management"
-        )
-
-    if row["AQIScore"] > 30:
-        recommendations.append(
-            "Control pollution sources"
-        )
-
-    if row["RoadScore"] > 50:
-        recommendations.append(
-            "Repair roads and potholes"
-        )
-
-    if row["TransportScore"] > 50:
-        recommendations.append(
-            "Increase public transport frequency"
-        )
-
-    return ", ".join(recommendations)
+from recommendation import get_recommendation
 
 final_df["Recommendation"] = final_df.apply(
     get_recommendation,
     axis=1
+)
+
+final_df.to_csv(
+    "outputs/final_ufi.csv",
+    index=False
 )
 
 print(final_df)

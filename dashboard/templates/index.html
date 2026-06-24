@@ -294,5 +294,23 @@ async function submitComplaint(){
 fetchData();
 setInterval(fetchData,15000);
 </script>
+
+<div class="card">
+    <div class="sec">
+        Recommended Action
+    </div>
+
+    <div id="recommendation">
+        Loading...
+    </div>
+</div>
+
+<script>
+  document.getElementById(
+    "recommendation"
+).innerHTML =
+    z.recommendation;
+</script>
+
 </body>
 </html>
