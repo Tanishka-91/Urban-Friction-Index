@@ -1,3 +1,12 @@
+import sys
+import os
+
+sys.path.append(
+    os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__))
+    )
+)
+
 from modules.transport_module import process_transport
 
 transport_df = process_transport(

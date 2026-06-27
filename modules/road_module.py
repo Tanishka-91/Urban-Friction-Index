@@ -15,15 +15,18 @@ def process_road(file_path):
 
     scaler = MinMaxScaler()
 
-    df["RoadScore"] = scaler.fit_transform(
-        df[["RoadIssue"]]
-    ) * 100
+    df["RoadScore"] = (
+    scaler.fit_transform(df[["RoadIssue"]]) * 80
+    ) + 20
 
     road_scores = df[["Zone", "RoadScore"]]
 
     road_scores.to_csv(
-        "outputs/road_scores.csv",
+        "outputs/road_scores2.csv",
         index=False
     )
 
     return road_scores
+if __name__ == "__main__":
+    result = process_road("data/road_complaints.csv")
+    print(result)

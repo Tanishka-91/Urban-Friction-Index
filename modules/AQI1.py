@@ -56,19 +56,19 @@ def create_zones(df):
     for i in range(len(df)):
 
         if i < zone_size:
-            zones.append("Zone A")
+            zones.append("Kothrud")
 
         elif i < zone_size * 2:
-            zones.append("Zone B")
+            zones.append("Baner")
 
         elif i < zone_size * 3:
-            zones.append("Zone C")
+            zones.append("Wakad")
 
         elif i < zone_size * 4:
-            zones.append("Zone D")
+            zones.append("Hadapsar")
 
         else:
-            zones.append("Zone E")
+            zones.append("Shivajinagar")
 
     df["Zone"] = zones
 

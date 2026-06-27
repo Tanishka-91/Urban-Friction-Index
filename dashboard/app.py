@@ -1,4 +1,17 @@
-from flask import Flask, render_template, jsonify
+import sys
+import os
+
+sys.path.append(
+    os.path.dirname(
+        os.path.dirname(
+            os.path.abspath(__file__)
+        )
+    )
+)
+
+from flask import Flask, render_template, jsonify ,request
+from modules.recommendation_engine import get_recommendation
+from modules import ufi_engine
 import pandas as pd
 
 app = Flask(__name__)
@@ -60,11 +73,6 @@ def api_ufi():
 
     return jsonify(data)
 
-
-if __name__ == "__main__":
-    app.run(debug=True)
-from flask import request, jsonify
-
 @app.route("/api/complaint", methods=["POST"])
 def api_complaint():
 
@@ -80,3 +88,39 @@ def api_complaint():
     return jsonify({
         "status": "success"
     })
+
+@app.route("/api/recommendations")
+def recommendations():
+
+    df = pd.read_csv("outputs/final_ufi.csv")
+
+    result = []
+
+    for _, row in df.iterrows():
+
+        recs = []
+
+        if row["TrafficScore"] > 60:
+            recs.append("🚗 Optimize traffic signals")
+
+        if row["AQIScore"] > 60:
+            recs.append("💨 Pollution control measures")
+
+        if row["RoadScore"] > 60:
+            recs.append("🛣️ Repair roads and potholes")
+
+        if row["TransportScore"] > 60:
+            recs.append("🚌 Increase public transport frequency")
+
+        if not recs:
+            recs.append("✅ Area performing well")
+
+        result.append({
+            "zone": row["Zone"],
+            "recommendations": recs
+        })
+
+    return jsonify(result)
+
+if __name__ == "__main__":
+    app.run(debug=True)

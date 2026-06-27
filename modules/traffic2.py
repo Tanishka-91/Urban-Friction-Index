@@ -24,6 +24,11 @@ def get_time_period(hour):
         return 1.3
     else:
         return 1.0   # normal
+    
+df["Hour"] = pd.to_datetime(
+    df["Time"],
+    format="%I:%M:%S %p"
+).dt.hour
 
 df["PeakMultiplier"] = df["Hour"].apply(get_time_period)
 
@@ -39,6 +44,10 @@ scaler = MinMaxScaler()
 df["TrafficScore"] = scaler.fit_transform(
     df[["FinalScore"]]
 ) * 100
+
+from traffic_module import create_zones
+
+df = create_zones(df)
 
 # ZONE-WISE AVERAGE
 zone_scores = df.groupby("Zone")["TrafficScore"].mean().reset_index()

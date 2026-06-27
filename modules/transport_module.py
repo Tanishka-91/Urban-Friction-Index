@@ -17,7 +17,7 @@ def process_transport(file_path):
 
     df["TransportScore"] = scaler.fit_transform(
         df[["TransportIssue"]]
-    ) * 100
+    ) * 80
 
     transport_scores = df[
         ["Zone", "TransportScore"]

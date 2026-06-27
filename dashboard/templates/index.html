@@ -83,15 +83,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <span id="livetime">Connecting...</span>
   </div>
 </aside>
-
 <main class="main">
   <div class="toprow">
     <div>
       <div class="page-title">Urban Friction Index</div>
-      <div class="page-sub">Real-time inconvenience · 6 zones · 6 factors · ML prediction</div>
+      <div class="page-sub">Real-time inconvenience · 5 zones · 5 factors · ML prediction</div>
     </div>
-    <div class="rbadge" id="rbadge">⏳ Loading...</div>
   </div>
+
 
   <div class="kpi-grid">
     <div class="kpi"><div class="kpi-label">City UFI</div><div class="kpi-val" id="k-ufi">—</div><div class="kpi-sub">avg score</div></div>
@@ -99,7 +98,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div class="kpi"><div class="kpi-label">Best Zone</div><div class="kpi-val" id="k-best" style="font-size:16px;color:var(--low)">—</div><div class="kpi-sub">lowest friction</div></div>
     <div class="kpi"><div class="kpi-label">High Risk</div><div class="kpi-val" id="k-risk" style="color:var(--mid)">—</div><div class="kpi-sub">zones UFI ≥70</div></div>
     <div class="kpi"><div class="kpi-label">Complaints</div><div class="kpi-val" id="k-comp">—</div><div class="kpi-sub">last 24 hours</div></div>
+    <div class="kpi"><div class="kpi-label">City Health</div><div class="kpi-val" id="k-health">—</div><div class="kpi-sub">overall livability</div></div>
   </div>
+
+<div id="alerts"></div>
 
   <div class="hmap-wrap">
     <div class="sec">🗺️ zone heatmap — click to inspect</div>
@@ -113,15 +115,43 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   </div>
 
   <div class="twocol">
+
     <div class="card">
-      <div class="sec">Factor breakdown · <span id="dzone" style="color:var(--accent)">Zone A</span></div>
-      <div id="fbars"></div>
+        <div class="sec">
+            Factor breakdown ·
+            <span id="dzone" style="color:var(--accent)">
+                Kothrud
+            </span>
+        </div>
+        <div id="fbars"></div>
     </div>
+
     <div class="card">
-      <div class="sec">7-day trend</div>
-      <div style="position:relative;height:175px"><canvas id="tc" role="img" aria-label="7-day UFI trend for selected zone"></canvas></div>
+        <div class="sec">7-day trend</div>
+        <div style="position:relative;height:175px">
+            <canvas id="tc"></canvas>
+        </div>
     </div>
-  </div>
+
+</div>
+
+<div class="twocol">
+
+    <div class="card">
+        <div class="sec">🤖 SMART RECOMMENDATIONS</div>
+        <div id="recommendations">
+            Loading recommendations...
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="sec">
+            🤖 ML Prediction — Tomorrow's UFI
+        </div>
+        <div class="pred-grid" id="pgrid"></div>
+    </div>
+
+</div>
 
   <div class="card" style="margin-bottom:18px">
     <div class="sec">Zone comparison — all 6 factors</div>
@@ -136,10 +166,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div style="position:relative;height:210px"><canvas id="zc" role="img" aria-label="Zone comparison bar chart all 6 factors"></canvas></div>
   </div>
 
-  <div class="sec">🤖 ML prediction — tomorrow's UFI (Linear Regression)</div>
-  <div class="pred-grid" id="pgrid"></div>
-
-  <div class="card">
+<div class="card">
     <div class="sec">📢 report an issue — updates scores live</div>
     <p style="font-size:12px;color:var(--muted)">Submit below. Score refreshes in the next 15-second cycle.</p>
     <div class="form-row">
@@ -161,10 +188,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 </div>
 
 <div class="toast" id="toast"></div>
+</body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const AREAS={"Zone A":"Downtown","Zone B":"Industrial","Zone C":"Suburbs","Zone D":"Old City","Zone E":"Tech Park","Zone F":"Waterfront"};
+const AREAS={"Kothrud":"Pune West","Baner":"IT Corridor","Wakad":"Residential Hub","Hadapsar":"Industrial Area","Shivajinagar":"City Centre"};
 const FMETA={
   traffic:    {l:"Traffic congestion",i:"🚗",w:"28%"},
   air_quality:{l:"Air quality",       i:"💨",w:"22%"},
@@ -175,7 +203,7 @@ const FMETA={
 };
 const FCOL={traffic:"#ef4444",air_quality:"#f59e0b",transit:"#4f8ef7",complaints:"#7c3aed",noise:"#06b6d4",crowd:"#ec4899"};
 
-let data=[], sel="Zone A", TC=null, ZC=null;
+let data=[], sel="Kothrud", TC=null, ZC=null;
 
 function uc(v){return v>=75?"#ef4444":v>=55?"#f59e0b":"#22c55e"}
 function ul(v){return v>=75?"High friction":v>=55?"Moderate":"Low friction"}
@@ -196,11 +224,42 @@ async function fetchData(){
   }catch(e){document.getElementById('rbadge').textContent='⚠️ Error'}
 }
 
+    function renderAlerts(){
+
+    let html="";
+
+    data.forEach(z=>{
+
+        if(z.ufi > 70){
+
+            html += `
+            <div class="alert">
+            ⚠ ${z.zone} requires attention
+            </div>`;
+        }
+
+    });
+
+    document.getElementById("alerts").innerHTML = html;
+}
+
+
 function renderAll(){rKPI();rHmap();rSidebar();rDetail();rZoneChart();rPred();rCForm()}
 
 function rKPI(){
   const sc=data.map(z=>z.ufi);
   const avg=(sc.reduce((a,b)=>a+b,0)/sc.length).toFixed(1);
+  const health =(100 - avg).toFixed(1);
+
+  let healthColor = "#22c55e";
+  if(health < 40)
+    healthColor = "#ef4444";
+
+  else if(health < 70)
+    healthColor = "#f59e0b";
+
+  document.getElementById("k-health")
+    .style.color = healthColor;
   const worst=data.reduce((a,b)=>a.ufi>b.ufi?a:b);
   const best=data.reduce((a,b)=>a.ufi<b.ufi?a:b);
   const risk=data.filter(z=>z.ufi>=70).length;
@@ -212,6 +271,7 @@ function rKPI(){
   document.getElementById('k-best').textContent=best.zone;
   document.getElementById('k-risk').textContent=risk;
   document.getElementById('k-comp').textContent=comp;
+  document.getElementById("k-health").textContent =health + "/100";
 }
 
 function rHmap(){
@@ -291,26 +351,70 @@ async function submitComplaint(){
   setTimeout(fetchData,800);
 }
 
+async function loadRecommendations(){
+
+    try{
+
+        const response =
+        await fetch("/api/recommendations");
+
+        const data =
+        await response.json();
+
+        let html = "";
+
+        data.forEach(zone=>{
+
+            html += `
+            <div style="
+                margin-bottom:12px;
+                padding:12px;
+                border-radius:10px;
+                background:#1a1e2a;
+                border:1px solid rgba(255,255,255,0.08);
+            ">
+
+                <h4 style="color:#4f8ef7">
+                    ${zone.zone}
+                </h4>
+
+                <ul style="
+                    margin-top:8px;
+                    padding-left:18px;
+                    color:#ddd;
+                ">
+                    ${
+                        zone.recommendations
+                        .map(r=>`<li>${r}</li>`)
+                        .join("")
+                    }
+                </ul>
+
+            </div>
+            `;
+        });
+
+        document.getElementById(
+            "recommendations"
+        ).innerHTML = html;
+
+    }
+
+    catch(err){
+
+        document.getElementById(
+            "recommendations"
+        ).innerHTML =
+        "❌ Recommendation engine failed";
+
+        console.log(err);
+    }
+}
+
 fetchData();
+loadRecommendations();
+
 setInterval(fetchData,15000);
+setInterval(loadRecommendations,15000);
 </script>
-
-<div class="card">
-    <div class="sec">
-        Recommended Action
-    </div>
-
-    <div id="recommendation">
-        Loading...
-    </div>
-</div>
-
-<script>
-  document.getElementById(
-    "recommendation"
-).innerHTML =
-    z.recommendation;
-</script>
-
-</body>
 </html>
